@@ -29,7 +29,6 @@ class NeuralNetwork:
         L2 = np.dot(self.weightHO, L1)
         L2 += self.biasO
         L2 = self.sigmoid(L2)
-
         self.outputs = L2
         return L2
 
@@ -41,26 +40,28 @@ class NeuralNetwork:
         #Backpropagate from Output to Hidden Layer
         
         HO_weights = np.array([],dtype=self.dtype).reshape(0,self.numHidden)
-        IH_weights = np.array([],dtype=self.dtype).reshape(0,self.numInput)
+        IH_weights = np.array([],dtype=self.dtype).reshape(0, self.numInput)
 
         for i in range(0,self.numOutput):
             weight = (output[i] - guess[i])
-            weight *= np.multiply(self.outputs), (1 - self.outputs)
-            weight *= self.hiddenInputs
+            weight = np.multiply(weight, np.multiply(self.outputs[i].T, (1 - self.outputs[i].T)))
+            weight = np.multiply(weight, self.hiddenInputs)
             weight = weight.T
             HO_weights = np.concatenate((HO_weights,weight),axis=0)
 
         self.weightHO += HO_weights
-
-        errorsHO = np.sum(HO_weight, axis=0)
-
+        #print(self.hiddenInputs)
+        errorsHO = np.sum(HO_weights, axis=0)
+        #print(errorsHO)
+        #print("\n\n")
         for i in range(0,len(errorsHO)):
             weight = (errorsHO[i])
-            weight *= np.multiply(self.hiddenInputs, (1 - self.hiddenInputs))
-            weight *= self.input
+            weight = np.multiply(weight, np.multiply(self.hiddenInputs[i].T, (1 - self.hiddenInputs[i].T)))
+            weight = np.multiply(weight, input)
             weight = weight.T
             IH_weights = np.concatenate((IH_weights,weight),axis=0)
-
+            #print("IH_weights : " + str(IH_weights))
+            #print("weight : " + str(weight))
         self.weightIH += IH_weights
         
         return
@@ -116,5 +117,20 @@ class Perceptron:
         return targets_list
 
 
-data = np.array([
-x = NeuralNetwork(1,2,1)
+data = np.array([[1]])
+answer = np.array([[-1],[1]])
+
+x = NeuralNetwork(1,2,2)
+
+for i in range(0,100):
+    print(x.weightIH)
+x.train(data,answer)
+
+
+
+
+
+
+
+
+
