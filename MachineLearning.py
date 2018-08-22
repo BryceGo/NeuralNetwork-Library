@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class NeuralNetwork:
-    dtype = np.float32
+    dtype = np.float64
     numInput = 0
     numHidden = 0
     numOutput = 0
@@ -38,7 +38,7 @@ class NeuralNetwork:
         
         guess = self.feedforward(input)
         #Backpropagate from Output to Hidden Layer
-        
+
         HO_weights = np.array([],dtype=self.dtype).reshape(0,self.numHidden)
         IH_weights = np.array([],dtype=self.dtype).reshape(0, self.numInput)
 
@@ -47,21 +47,21 @@ class NeuralNetwork:
             weight = np.multiply(weight, np.multiply(self.outputs[i].T, (1 - self.outputs[i].T)))
             weight = np.multiply(weight, self.hiddenInputs)
             weight = weight.T
+
             HO_weights = np.concatenate((HO_weights,weight),axis=0)
 
+        self.biasO += np.multiply(output - guess, np.multiply(self.outputs, (1-self.outputs)))
         self.weightHO += HO_weights
-        #print(self.hiddenInputs)
-        errorsHO = np.sum(HO_weights, axis=0)
-        #print(errorsHO)
-        #print("\n\n")
+        
+        errorsHO = np.array([np.sum(HO_weights, axis=0)]).T
         for i in range(0,len(errorsHO)):
             weight = (errorsHO[i])
             weight = np.multiply(weight, np.multiply(self.hiddenInputs[i].T, (1 - self.hiddenInputs[i].T)))
             weight = np.multiply(weight, input)
             weight = weight.T
             IH_weights = np.concatenate((IH_weights,weight),axis=0)
-            #print("IH_weights : " + str(IH_weights))
-            #print("weight : " + str(weight))
+
+        self.biasH += np.multiply(np.multiply((1- self.hiddenInputs), self.hiddenInputs), errorsHO)
         self.weightIH += IH_weights
         
         return
@@ -70,7 +70,7 @@ class NeuralNetwork:
         array = np.copy(input)
         for i in range(0,len(input)):
             e = math.exp(array[i])
-            array[i] = e/(e+1)                        
+            array[i] = e/(e+1)
         return array
 
 
@@ -117,14 +117,27 @@ class Perceptron:
         return targets_list
 
 
-data = np.array([[1]])
-answer = np.array([[-1],[1]])
+data = np.array([[1],[0]])
+answer = np.array([[0]])
 
-x = NeuralNetwork(1,2,2)
+x = NeuralNetwork(2,3,1)
 
-for i in range(0,100):
-    print(x.weightIH)
-x.train(data,answer)
+for i in range(0,1000):
+    #print(x.weightIH)
+    x.train(np.array([[1],[0]]),np.array([[1]]))
+    x.train(np.array([[0],[1]]),np.array([[1]]))
+    x.train(np.array([[1],[1]]),np.array([[0]]))
+    x.train(np.array([[0],[0]]),np.array([[0]]))
+    print("IH weights: " + str(x.weightIH))
+    print("HO weights: " + str(x.weightHO))
+    print("Bias H: " + str(x.biasH))
+    print("Bias O: " + str(x.biasO))
+    print("\n\n\n")
+    
+print(x.feedforward(np.array([[0],[0]])))
+print(x.feedforward(np.array([[1],[0]])))
+print(x.feedforward(np.array([[0],[0]])))
+print(x.feedforward(np.array([[0],[0]])))
 
 
 
