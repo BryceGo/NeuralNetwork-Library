@@ -14,8 +14,8 @@ class NeuralNetwork:
         self.numOutput = numberOutput
         self.weightIH = np.asarray(np.matlib.rand(self.numHidden,self.numInput),dtype=self.dtype)
         self.weightHO = np.asarray(np.matlib.rand(self.numOutput,self.numHidden), dtype=self.dtype)
-        self.biasH = 0.01#np.asarray(np.matlib.ones((self.numHidden,1)), dtype = self.dtype)
-        self.biasO =  0.01#np.asarray(np.matlib.ones((self.numOutput,1)), dtype = self.dtype)
+        self.biasH = 0#np.asarray(np.matlib.ones((self.numHidden,1)), dtype = self.dtype)
+        self.biasO =  0#np.asarray(np.matlib.ones((self.numOutput,1)), dtype = self.dtype)
         return
 
     def feedforward(self, input):
@@ -46,7 +46,7 @@ class NeuralNetwork:
         weight = np.multiply(weight, np.multiply(self.outputs, (1 - self.outputs)))
         propagatedWeights = weight
         weight = np.multiply(self.hiddenInputs, weight.T).T
-        self.weightHO -= weight
+        self.weightHO += weight
 
         propagatedWeights = np.multiply(propagatedWeights,self.weightHO)
         propagatedWeights = np.array([np.sum(propagatedWeights,axis=0)])
@@ -62,12 +62,9 @@ class NeuralNetwork:
         # tempWeight = np.array([np.sum(HO_weights,axis=0)]).T
         # propagatedWeights = np.multiply(tempWeight,propagatedWeights)
         # print( "prop: " + str(propagatedWeights))
-
         weight = np.multiply(propagatedWeights.T,np.multiply(self.hiddenInputs, (1-self.hiddenInputs)))
-        print(input)
-        print(weight)
-        weight = np.multiply(input,weight.T).T
-        self.weightIH -= weight
+        weight = np.dot(input,weight.T).T
+        self.weightIH += weight
         
         # errorsHO = propagatedWeights
         # for i in range(0,len(errorsHO)):
@@ -84,8 +81,8 @@ class NeuralNetwork:
     def sigmoid(self, input):
         array = np.copy(input)
         for i in range(0,len(input)):
-            e = math.exp(array[i])
-            array[i] = e/(e+1)
+            e = math.exp(-array[i])
+            array[i] = 1/(1+e)
         return array
 
 
@@ -135,25 +132,25 @@ class Perceptron:
 data = np.array([[1],[0]])
 answer = np.array([[0]])
 
-x = NeuralNetwork(2,3,1)
+x = NeuralNetwork(2,9,1)
 
-for i in range(0,1):
+for i in range(0,50000):
     #print(x.weightIH)
     #x.train(np.array([[1],[1]]),np.array([[0],[0]]))
-    x.train(np.array([[1],[0.4]]),np.array([[1]]))
-    x.train(np.array([[0.4],[1]]),np.array([[1]]))
-    x.train(np.array([[1],[1]]),np.array([[0.1]]))
-    x.train(np.array([[0.4],[0.4]]),np.array([[0.1]]))
+    x.train(np.array([[1],[0]]),np.array([[1]]))
+    x.train(np.array([[0],[1]]),np.array([[1]]))
+    x.train(np.array([[1],[1]]),np.array([[0]]))
+    x.train(np.array([[0],[0]]),np.array([[0]]))
     print("IH weights: " + str(x.weightIH))
     print("HO weights: " + str(x.weightHO))
     print("Bias H: " + str(x.biasH))
     print("Bias O: " + str(x.biasO))
     print("\n\n\n")
     
-print(x.feedforward(np.array([[0.4],[0.4]])))
-print(x.feedforward(np.array([[1],[0.4]])))
-print(x.feedforward(np.array([[0.4],[1]])))
+print(x.feedforward(np.array([[1],[0]])))
+print(x.feedforward(np.array([[0],[1]])))
 print(x.feedforward(np.array([[1],[1]])))
+print(x.feedforward(np.array([[0],[0]])))
 
 
 
