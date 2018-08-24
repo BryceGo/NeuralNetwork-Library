@@ -2,7 +2,7 @@ import random
 import numpy.matlib
 import numpy as np
 import math
-
+#https://theclevermachine.wordpress.com/2014/09/06/derivation-error-backpropagation-gradient-descent-for-neural-networks/
 class NeuralNetwork:
     dtype = np.float64
     numInput = 0
@@ -14,8 +14,8 @@ class NeuralNetwork:
         self.numOutput = numberOutput
         self.weightIH = np.asarray(np.matlib.rand(self.numHidden,self.numInput),dtype=self.dtype)
         self.weightHO = np.asarray(np.matlib.rand(self.numOutput,self.numHidden), dtype=self.dtype)
-        self.biasH = np.asarray(np.matlib.ones((self.numHidden,1)), dtype = self.dtype)
-        self.biasO = np.asarray(np.matlib.ones((self.numOutput,1)), dtype = self.dtype)
+        self.biasH = 0.01#np.asarray(np.matlib.ones((self.numHidden,1)), dtype = self.dtype)
+        self.biasO =  0.01#np.asarray(np.matlib.ones((self.numOutput,1)), dtype = self.dtype)
         return
 
     def feedforward(self, input):
@@ -34,36 +34,51 @@ class NeuralNetwork:
 
 	#Input should be 1xn
 	#Output should be 1xn
-    def train(self, input, output):
-        
+    def train(self, input, output):    
         guess = self.feedforward(input)
         #Backpropagate from Output to Hidden Layer
 
-        HO_weights = np.array([],dtype=self.dtype).reshape(0,self.numHidden)
-        IH_weights = np.array([],dtype=self.dtype).reshape(0, self.numInput)
+        # propagatedWeights = np.array([],dtype=self.dtype).reshape(0,self.numOutput)
+        # HO_weights = np.array([],dtype=self.dtype).reshape(0,self.numHidden)
+        # IH_weights = np.array([],dtype=self.dtype).reshape(0, self.numInput)
 
-        for i in range(0,self.numOutput):
-            weight = (output[i] - guess[i])
-            weight = np.multiply(weight, np.multiply(self.outputs[i].T, (1 - self.outputs[i].T)))
-            weight = np.multiply(weight, self.hiddenInputs)
-            weight = weight.T
+        weight = output - guess
+        weight = np.multiply(weight, np.multiply(self.outputs, (1 - self.outputs)))
+        propagatedWeights = weight
+        weight = np.multiply(self.hiddenInputs, weight.T).T
+        self.weightHO -= weight
 
-            HO_weights = np.concatenate((HO_weights,weight),axis=0)
+        propagatedWeights = np.multiply(propagatedWeights,self.weightHO)
+        propagatedWeights = np.array([np.sum(propagatedWeights,axis=0)])
+        # for i in range(0,self.numOutput):
+        #     propagatedWeights = np.concatenate((propagatedWeights,weight),axis=0)
+        #     weight = np.multiply(weight, self.hiddenInputs)
+        #     weight = weight.T
 
-        self.biasO += np.multiply(output - guess, np.multiply(self.outputs, (1-self.outputs)))
-        self.weightHO += HO_weights
+        #     HO_weights = np.concatenate((HO_weights,weight),axis=0)
+
+        #self.biasO += np.multiply(output - guess, np.multiply(self.outputs, (1-self.outputs)))
+        #self.weightHO -= HO_weights
+        # tempWeight = np.array([np.sum(HO_weights,axis=0)]).T
+        # propagatedWeights = np.multiply(tempWeight,propagatedWeights)
+        # print( "prop: " + str(propagatedWeights))
+
+        weight = np.multiply(propagatedWeights.T,np.multiply(self.hiddenInputs, (1-self.hiddenInputs)))
+        print(input)
+        print(weight)
+        weight = np.multiply(input,weight.T).T
+        self.weightIH -= weight
         
-        errorsHO = np.array([np.sum(HO_weights, axis=0)]).T
-        for i in range(0,len(errorsHO)):
-            weight = (errorsHO[i])
-            weight = np.multiply(weight, np.multiply(self.hiddenInputs[i].T, (1 - self.hiddenInputs[i].T)))
-            weight = np.multiply(weight, input)
-            weight = weight.T
-            IH_weights = np.concatenate((IH_weights,weight),axis=0)
+        # errorsHO = propagatedWeights
+        # for i in range(0,len(errorsHO)):
+        #     weight = (errorsHO[i])
+        #     weight = np.multiply(weight, np.multiply(self.hiddenInputs[i].T, (1 - self.hiddenInputs[i].T)))
+        #     weight = np.multiply(weight, input)
+        #     weight = weight.T
+        #     IH_weights = np.concatenate((IH_weights,weight),axis=0)
 
-        self.biasH += np.multiply(np.multiply((1- self.hiddenInputs), self.hiddenInputs), errorsHO)
-        self.weightIH += IH_weights
-        
+        # self.biasH += np.multiply(np.multiply((1- self.hiddenInputs), self.hiddenInputs), errorsHO)
+        # self.weightIH -= IH_weights
         return
 
     def sigmoid(self, input):
@@ -122,22 +137,23 @@ answer = np.array([[0]])
 
 x = NeuralNetwork(2,3,1)
 
-for i in range(0,1000):
+for i in range(0,1):
     #print(x.weightIH)
-    x.train(np.array([[1],[0]]),np.array([[1]]))
-    x.train(np.array([[0],[1]]),np.array([[1]]))
-    x.train(np.array([[1],[1]]),np.array([[0]]))
-    x.train(np.array([[0],[0]]),np.array([[0]]))
+    #x.train(np.array([[1],[1]]),np.array([[0],[0]]))
+    x.train(np.array([[1],[0.4]]),np.array([[1]]))
+    x.train(np.array([[0.4],[1]]),np.array([[1]]))
+    x.train(np.array([[1],[1]]),np.array([[0.1]]))
+    x.train(np.array([[0.4],[0.4]]),np.array([[0.1]]))
     print("IH weights: " + str(x.weightIH))
     print("HO weights: " + str(x.weightHO))
     print("Bias H: " + str(x.biasH))
     print("Bias O: " + str(x.biasO))
     print("\n\n\n")
     
-print(x.feedforward(np.array([[0],[0]])))
-print(x.feedforward(np.array([[1],[0]])))
-print(x.feedforward(np.array([[0],[0]])))
-print(x.feedforward(np.array([[0],[0]])))
+print(x.feedforward(np.array([[0.4],[0.4]])))
+print(x.feedforward(np.array([[1],[0.4]])))
+print(x.feedforward(np.array([[0.4],[1]])))
+print(x.feedforward(np.array([[1],[1]])))
 
 
 
