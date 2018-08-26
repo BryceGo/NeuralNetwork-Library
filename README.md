@@ -35,7 +35,7 @@ Call the train function to train the model.
 
 ## References
 
-[Derivation of Error Backrpopagation](https://theclevermachine.wordpress.com/2014/09/06/derivation-error-backpropagation-gradient-descent-for-neural-networks/)
+[Derivation of Error Backpropagation](https://theclevermachine.wordpress.com/2014/09/06/derivation-error-backpropagation-gradient-descent-for-neural-networks/)
 
 [How backpropagation works](http://neuralnetworksanddeeplearning.com/chap2.html)
 
