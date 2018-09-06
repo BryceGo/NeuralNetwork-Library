@@ -2,7 +2,6 @@ import random
 import numpy.matlib
 import numpy as np
 import math
-#https://theclevermachine.wordpress.com/2014/09/06/derivation-error-backpropagation-gradient-descent-for-neural-networks/
 class NeuralNetwork:
     dtype = np.float64
     numInput = 0
@@ -65,34 +64,6 @@ class NeuralNetwork:
             e = math.exp(-array[i])
             array[i] = 1/(1+e)
         return array
-
-data = np.array([[1],[0]])
-answer = np.array([[0]])
-
-x = NeuralNetwork(2,9,1)
-
-for i in range(0,50000):
-    #print(x.weightIH)
-    #x.train(np.array([[1],[1]]),np.array([[0],[0]]))
-    x.train(np.array([[1],[0]]),np.array([[0.89]]))
-    x.train(np.array([[0],[1]]),np.array([[0.48]]))
-    x.train(np.array([[1],[1]]),np.array([[0.22]]))
-    x.train(np.array([[0],[0]]),np.array([[0.11]]))
-    print("IH weights: " + str(x.weightIH))
-    print("HO weights: " + str(x.weightHO))
-    print("Bias H: " + str(x.biasH))
-    print("Bias O: " + str(x.biasO))
-    print("\n\n\n")
-    
-print(x.feedforward(np.array([[1],[0]])))
-print(x.feedforward(np.array([[0],[1]])))
-print(x.feedforward(np.array([[1],[1]])))
-print(x.feedforward(np.array([[0],[0]])))
-
-
-
-
-
 
 
 
